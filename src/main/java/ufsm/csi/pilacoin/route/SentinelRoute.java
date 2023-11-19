@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufsm.csi.pilacoin.services.MiningService;
+import ufsm.csi.pilacoin.services.HashChallengeService;
 
 @RestController
 @CrossOrigin("*")
@@ -13,7 +13,7 @@ public class SentinelRoute {
 
     // private final MiningService miningService;
 
-    public SentinelRoute(MiningService miningService) {
+    public SentinelRoute(HashChallengeService miningService) {
         // this.miningService = miningService;
     }
 
