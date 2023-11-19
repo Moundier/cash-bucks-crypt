@@ -1,0 +1,34 @@
+spring:
+
+  rabbitmq:
+    host: srv-ceesp.proj.ufsm.br
+    port: 8082
+    username: guest
+    password: guest
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Mining
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        "[format_sql]": true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+queue:
+  pilacoin:
+    valid:
+      name: pila-minerado
+  msgs: clients-msgs
+  errors: clients-errors
+  dificuldade: dificuldade
+
+server:
+  address: 0.0.0.0

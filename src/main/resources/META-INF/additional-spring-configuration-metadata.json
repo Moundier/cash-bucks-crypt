@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "queue.dificuldade",
+      "type": "java.lang.String",
+      "description": "A description for 'queue.dificuldade'"
+    },
+    {
+      "name": "queue.errors",
+      "type": "java.lang.String",
+      "description": "A description for 'queue.errors'"
+    },
+    {
+      "name": "queue.msgs",
+      "type": "java.lang.String",
+      "description": "A description for 'queue.msgs'"
+    },
+    {
+      "name": "queue.pilacoin.valid.name",
+      "type": "java.lang.String",
+      "description": "A description for 'queue.pilacoin.valid.name'"
+    }
+  ]
+}
