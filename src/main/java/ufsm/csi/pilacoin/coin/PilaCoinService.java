@@ -11,6 +11,7 @@ import java.util.List;
 
 @Service
 public class PilaCoinService {
+    
     private final PilaCoinRepository pilaCoinRepository;
 
     public PilaCoinService(PilaCoinRepository pilaCoinRepository) {
@@ -20,11 +21,11 @@ public class PilaCoinService {
     @Transactional
     public void transferPila(PilaCoin pilaCoin, String target_username, String target_user_key) {
         PilaTransfer pilaTransfer = PilaTransfer.builder()
-                .nomeUsuarioDestino(target_username)
-                .noncePila(pilaCoin.getNonce())
-                .chaveUsuarioDestino(target_user_key.getBytes(StandardCharsets.UTF_8))
-                .dataTransacao(new Date(System.currentTimeMillis()))
-                .build();
+            .nomeUsuarioDestino(target_username)
+            .noncePila(pilaCoin.getNonce())
+            .chaveUsuarioDestino(target_user_key.getBytes(StandardCharsets.UTF_8))
+            .dataTransacao(new Date(System.currentTimeMillis()))
+            .build();
 
         System.out.println(pilaTransfer);
     }
