@@ -1,7 +1,6 @@
 package ufsm.csi.pilacoin.blueprint;
 
 public interface TypeCommon {
-
-  <T> void subscribe(TypeGenericStrategy obj); // Accepts Any 
-  <T> T unsubscribe(TypeGenericStrategy objs); // Accepts Any and Returns Any
+  <T> void hold(TypeGenericStrategy obj); // Accepts Any 
+  <T> T release(TypeGenericStrategy objs); // Accepts Any and Returns Any
 }
