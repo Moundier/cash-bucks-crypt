@@ -17,6 +17,9 @@ import ufsm.csi.pilacoin.shared.Singleton;
 
 import javax.crypto.Cipher;
 import static javax.crypto.Cipher.*;
+import static ufsm.csi.pilacoin.config.Config.CONST_NAME;
+import static ufsm.csi.pilacoin.config.Config.PROCESSORS;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -24,8 +27,6 @@ import java.util.List;
 import java.util.Random;
 
 import static java.nio.charset.StandardCharsets.*;
-import static ufsm.csi.pilacoin.common.Constants.CONST_NAME;
-import static ufsm.csi.pilacoin.common.Constants.PROCESSORS;
 
 @Service
 public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrategy {
@@ -34,17 +35,21 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     private BigInteger difficulty;
     private Block block;
+    private Boolean shouldStop = false;
 
     @Override
     @SneakyThrows
     public void run() {
         this.block.setChaveUsuarioMinerador(this.singleton.getPublicKey().toString().getBytes(UTF_8));
 
-        for (int count = 1; true; count++) {
-            byte[] bytes = new byte[256 / 8];
+        byte[] bytes = new byte[256 / 8];
+        byte[] nonceDigest;
+
+        for (int count = 0; this.shouldStop == false; count++) {
             new Random().nextBytes(bytes);
 
-            this.block.setNonce(new BigInteger(MessageDigest.getInstance("SHA-256").digest(bytes)).abs());
+            nonceDigest = MessageDigest.getInstance("SHA-256").digest(bytes);
+            this.block.setNonce(new BigInteger(nonceDigest).abs());
 
             String json = objectWriter.writeValueAsString(this.block);
             BigInteger hash = new BigInteger(MessageDigest.getInstance("SHA-256").digest(json.getBytes(UTF_8))).abs();
@@ -54,6 +59,12 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
                 this.rabbitService.send("bloco-minerado", json);
             }
         }
+
+        Thread.currentThread().interrupt(); // Interrupt at loop escape
+    }
+
+    public void shouldStop() {
+        this.shouldStop = true;
     }
 
     private void printBlockFoundMessage(int count, String json) {
@@ -62,9 +73,11 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
     }
 
     @Override
-    public <T> void update(T obj) {
-        if (obj instanceof Block block) this.block = block;
-        if (obj instanceof BigInteger big) this.difficulty = big;
+    public <T> void change(T obj) {
+        if (obj instanceof Block block)
+            this.block = block;
+        if (obj instanceof BigInteger big)
+            this.difficulty = big;
     }
 
     // BLOCK SERVICE RELATED
@@ -91,14 +104,13 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
             BlockChainService miningService = new BlockChainService(
                 Singleton.getInstance(),
                 this.rabbitService,
-                this.miningService
-            );
-    
+                this.miningService);
+
             this.observers.add(miningService);
-            this.miningService.subscribe(miningService);
-            miningService.update(this.currentBlock);
-            miningService.update(this.miningService.getCurrentDifficulty());
-    
+            this.miningService.hold(miningService);
+            miningService.change(this.currentBlock);
+            miningService.change(this.miningService.getCurrentDifficulty());
+
             new Thread(miningService).start();
         }
     }
@@ -114,7 +126,7 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
     }
 
     @SneakyThrows
-    @RabbitListener(queues = {"bloco-minerado"})
+    @RabbitListener(queues = { "bloco-minerado" })
     public void validateBlock(@Payload String blockStr) {
 
         // LISTEN TO MINED BLOCKS AND VALIDATE
@@ -146,13 +158,13 @@ public class BlockChainService implements Runnable, TypeCommon, TypeGenericStrat
     // IMPLEMENTATIONS
 
     @Override
-    public <T> void subscribe(TypeGenericStrategy obj) {
-        this.observers.add(obj);
+    public <T> void hold(TypeGenericStrategy object) {
+        this.observers.add(object);
     }
 
     @Override
-    public <T> T unsubscribe(TypeGenericStrategy objs) {
-        this.observers.remove(objs);
+    public <T> T release(TypeGenericStrategy objects) {
+        this.observers.remove(objects);
         throw new UnsupportedOperationException("(BlockService.java) Unimplemented method 'unsubscribe'");
     }
 }
