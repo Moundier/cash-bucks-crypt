@@ -8,6 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+import static ufsm.csi.pilacoin.config.Config.*;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +18,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-
-import ufsm.csi.pilacoin.common.Colors;
 
 @Data
 @Component
@@ -56,6 +56,8 @@ public class Singleton implements SmartLifecycle {
   private Map<BigInteger, Integer> pilaCoinsFoundPerDifficulty = new HashMap<BigInteger, Integer>();
   private Map<String, Integer> pilaCoinsFoundPerThread = new HashMap<String, Integer>();
 
+
+  // Getters Setters Mergers
   public synchronized Map<BigInteger, Integer> getPilaCoinsFoundPerDifficulty() {
     return pilaCoinsFoundPerDifficulty;
   }
@@ -84,11 +86,11 @@ public class Singleton implements SmartLifecycle {
 
   private void printStatisticalHistory() {
     System.out.println("\n");
-    System.out.println(Colors.YELLOW_BOLD_BRIGHT + "Mining Data" + Colors.ANSI_RESET);
-    System.out.println(Colors.ANSI_CYAN + TimeFormat.reduplicator("-", "Pilacoins found per difficulty") + Colors.ANSI_RESET);
+    System.out.println(YELLOW_BOLD + "Mining Data" + RESET);
+    System.out.println(CYAN + TimeFormat.sequence("-", "Pilacoins found per difficulty") + RESET);
 
     sortKeyPair(pilaCoinsFoundPerDifficulty, BigInteger.class);
-    System.out.println(Colors.ANSI_CYAN + TimeFormat.reduplicator("-", "Pilacoins found per Thread") + Colors.ANSI_RESET);
+    System.out.println(CYAN + TimeFormat.sequence("-", "Pilacoins found per Thread") + RESET);
     sortKeyPair(pilaCoinsFoundPerThread, String.class);
 
     System.out.println("\n");
@@ -97,8 +99,7 @@ public class Singleton implements SmartLifecycle {
   // (COINS/BLOCKS) PER THREAD
   private static <K> void sortKeyPair(Map<K, Integer> map, Class<K> key) {
     var pairs = new ArrayList<>(map.entrySet());
-    pairs.sort(
-        (A, B) -> B.getValue().compareTo(A.getValue()));
+    pairs.sort((K, V) -> K.getValue().compareTo(V.getValue()));
 
     for (var p : pairs) {
       PrintKeyPair(p.getKey(), p.getValue());
@@ -106,7 +107,7 @@ public class Singleton implements SmartLifecycle {
   }
 
   public static <T> void PrintKeyPair(T k, Integer v) {
-    System.out.println("| " + Colors.WHITE_BOLD_BRIGHT + k + ": " + Colors.ANSI_GREEN + v + Colors.ANSI_RESET + " |");
+    System.out.println("| " + WHITE_BOLD + k + ": " + GREEN + v + RESET + " |");
   }
 
   @Override
