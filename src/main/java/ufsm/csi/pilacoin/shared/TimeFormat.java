@@ -1,25 +1,24 @@
 package ufsm.csi.pilacoin.shared;
 
-import ufsm.csi.pilacoin.common.Colors;
 
-import static ufsm.csi.pilacoin.common.Colors.*;
+import static ufsm.csi.pilacoin.config.Config.*;
 
 public class TimeFormat {
 
-    public static String reduplicator(String surround, String message) {
+    public static String sequence(String surround, String message) {
         String surrounds = surround.repeat(message.length());
         return surrounds + "\n" + message + "\n" + surrounds;
     }
 
     public static String blockFoundMessage(int count, String json) {
         return String.format(
-            BLACK_BACKGROUND + "Block found in " +
-            WHITE_BOLD_BRIGHT + "%,d" + " tries" +
-            ANSI_RESET + "\n", count) + json;
+            BLACK_BG + "Block found in " +
+            WHITE_BOLD + "%,d" + " tries" +
+            RESET + "\n", count) + json;
     }
 
     public static String threadName(Thread thread) {
-        return Colors.YELLOW_BOLD_BRIGHT + thread.getName() + Colors.ANSI_RESET  + ": ";
+        return YELLOW_BOLD + thread.getName() + RESET  + ": ";
     }
 
     public static String timeFormat(Long hours, Long minutes, Long seconds) {
