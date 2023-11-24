@@ -7,7 +7,7 @@
 
 - Pagination in PilacoinService
 - WebSocket
-- Minha fila pessoal (com meu nome) query em RabbitService
+- Personal queue ```name+query```
 
 - Implement and Update Models
     - PilacoinMiningData.java
