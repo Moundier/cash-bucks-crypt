@@ -11,17 +11,17 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import ufsm.csi.pilacoin.blueprint.TypeGenericStrategy;
-import ufsm.csi.pilacoin.coin.PilaCoin;
-import ufsm.csi.pilacoin.common.Colors;
+import ufsm.csi.pilacoin.component.pilacoin.PilaCoin;
 import ufsm.csi.pilacoin.model.PilaValidado;
 import ufsm.csi.pilacoin.shared.Singleton;
 
 import javax.crypto.Cipher;
+
+import static ufsm.csi.pilacoin.config.Config.*;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-
-import static ufsm.csi.pilacoin.common.Constants.*;
 
 @Service
 public class RabbitService implements TypeGenericStrategy {
@@ -50,7 +50,6 @@ public class RabbitService implements TypeGenericStrategy {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         BigInteger hash = new BigInteger(md.digest(pilaCoinStr.getBytes(StandardCharsets.UTF_8))).abs();
         PilaCoin coin = this.objectReader.readValue(pilaCoinStr, PilaCoin.class);
-        hash = new BigInteger(md.digest(pilaCoinStr.getBytes(StandardCharsets.UTF_8))).abs(); // NEEDS ??
 
         if (this.difficulty == null || coin.getNomeCriador().equals(CONST_NAME) || hash.compareTo(this.difficulty) >= 0) {
             this.send("pila-minerado", pilaCoinStr);
@@ -68,7 +67,7 @@ public class RabbitService implements TypeGenericStrategy {
             .pilaCoin(coin)
             .build();
 
-        System.out.println(Colors.WHITE_BOLD_BRIGHT + pilaValidado.getPilaCoin().getNomeCriador() + "'s " + Colors.ANSI_CYAN + "Pila valid!" + Colors.ANSI_RESET);
+        System.out.println(WHITE_BOLD + pilaValidado.getPilaCoin().getNomeCriador() + "'s " + CYAN + "Pila valid!" + RESET);
         String json = this.objectWriter.writeValueAsString(pilaValidado);
         this.send("pila-validado", json);
     }
@@ -94,7 +93,7 @@ public class RabbitService implements TypeGenericStrategy {
     }*/
 
     @Override
-    public <T> void update(T type) {
+    public <T> void change(T type) {
         if (type instanceof BigInteger difficulty) {
             this.difficulty = difficulty;
         }
