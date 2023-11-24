@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ufsm.csi.pilacoin.coin.PilaCoin;
+import ufsm.csi.pilacoin.common.pilacoin.PilaCoin;
 
 @Data
 @Builder
