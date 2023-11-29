@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import ufsm.csi.pilacoin.blueprint.TypeCommon;
 import ufsm.csi.pilacoin.blueprint.TypeGenericStrategy;
-import ufsm.csi.pilacoin.component.pilacoin.PilaCoin;
-import ufsm.csi.pilacoin.component.pilacoin.PilaCoinService;
+import ufsm.csi.pilacoin.common.pilacoin.PilaCoin;
+import ufsm.csi.pilacoin.common.pilacoin.PilaCoinService;
 import ufsm.csi.pilacoin.model.Difficulty;
 import ufsm.csi.pilacoin.shared.TimeFormat;
 import ufsm.csi.pilacoin.shared.Singleton;
@@ -65,13 +65,12 @@ public class HashChallengeService implements Runnable, TypeCommon, TypeGenericSt
     for (int count = 0; !this.shouldStop; count++) {
       random.nextBytes(byteArray); // Inserting random bytes
 
-      // Reuse MessageDigest and ObjectMapper instances
-      nonceDigest = md.digest(byteArray);
+      nonceDigest = md.digest(byteArray);  // Reuse MessageDigest Instace
       pilaCoin.setNonce(new BigInteger(nonceDigest).abs().toString());
       pilaCoin.setDataCriacao(new Date(System.currentTimeMillis()));
 
       jsonBuilder.setLength(0); // StringBuilder resets on iteration
-      jsonBuilder.append(objectMapper.writeValueAsString(pilaCoin));
+      jsonBuilder.append(objectMapper.writeValueAsString(pilaCoin)); // Reuse ObjectMapper Instance
 
       // Avoid unnecessary String conversion for hashing
       BigInteger hash = new BigInteger(md.digest(jsonBuilder.toString().getBytes())).abs();
@@ -118,7 +117,7 @@ public class HashChallengeService implements Runnable, TypeCommon, TypeGenericSt
     }
   }
 
-  // DIFFICULTY TIED FIELDS AND METHODS
+  // DIFFICULTY SERVICE FIELDS AND METHODS
   private boolean firstPilaSent = false;
   private boolean isFirstDifficulty = true;
   private boolean threadsAlreadyStarted = false;
@@ -137,8 +136,7 @@ public class HashChallengeService implements Runnable, TypeCommon, TypeGenericSt
   private final Thread shutdownThread = new Thread(shutdown);
 
   {
-    // ANONYMOUS GOURMET
-    Runtime.getRuntime().addShutdownHook(shutdownThread);
+    Runtime.getRuntime().addShutdownHook(shutdownThread); // ANONYMOUS GOURMET
   } 
 
   @SneakyThrows

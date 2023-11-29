@@ -17,5 +17,7 @@ import lombok.NoArgsConstructor;
 public class User {
   
   @Id
-  Long id;
+  private Long id;
+  private byte[] chavePublica;
+  private String nome;
 }

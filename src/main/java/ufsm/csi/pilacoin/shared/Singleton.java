@@ -1,15 +1,19 @@
 package ufsm.csi.pilacoin.shared;
 
 import lombok.Data;
+import lombok.SneakyThrows;
+
 import org.springframework.stereotype.Component;
 
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import static ufsm.csi.pilacoin.config.Config.*;
 
+import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,17 +32,24 @@ public class Singleton implements SmartLifecycle {
   private boolean isRunning = false;
   private final Object lock = new Object();
 
-  // BILL PUGH'S SINGLETON 
+  // BILL PUGH'S SINGLETON
 
+  @SneakyThrows
   private Singleton() {
-    try {
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-      keyPairGenerator.initialize(1024);
-      this.publicKey = keyPairGenerator.generateKeyPair().getPublic();
-      this.privateKey = keyPairGenerator.generateKeyPair().getPrivate();
-    } catch (NoSuchAlgorithmException e) {
-      System.err.println("Error: exception at Singleton.java");
-    }
+    FileInputStream fosPublic = new FileInputStream("/home/casanova/Desktop/virtual-bucks/src/main/resources/keys/public_key.der");
+    FileInputStream fosPrivate = new FileInputStream("/home/casanova/Desktop/virtual-bucks/src/main/resources/keys/private_key.der");
+    byte[] encodedPublic = new byte[fosPublic.available()];
+    byte[] encodedPrivate = new byte[fosPrivate.available()];
+    fosPublic.read(encodedPublic);
+    fosPrivate.read(encodedPrivate);
+    fosPublic.close();
+    fosPrivate.close();
+
+    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublic);
+    PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivate);
+    this.publicKey = keyFactory.generatePublic(publicKeySpec);
+    this.privateKey = keyFactory.generatePrivate(privateKeySpec);
   }
 
   public static Singleton getInstance() {
@@ -55,7 +66,6 @@ public class Singleton implements SmartLifecycle {
   public SimpMessagingTemplate template;
   private Map<BigInteger, Integer> pilaCoinsFoundPerDifficulty = new HashMap<BigInteger, Integer>();
   private Map<String, Integer> pilaCoinsFoundPerThread = new HashMap<String, Integer>();
-
 
   // Getters Setters Mergers
   public synchronized Map<BigInteger, Integer> getPilaCoinsFoundPerDifficulty() {

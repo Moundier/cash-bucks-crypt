@@ -1,5 +1,7 @@
 package ufsm.csi.pilacoin.common.user;
 
-public interface UserRepo {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepo extends JpaRepository<User, Long> {
   
 }

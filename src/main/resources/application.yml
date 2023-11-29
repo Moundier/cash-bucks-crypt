@@ -32,3 +32,5 @@ queue:
 
 server:
   address: 0.0.0.0
+
+# http://srv-ceesp.proj.ufsm.br:8082
