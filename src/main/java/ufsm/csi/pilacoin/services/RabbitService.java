@@ -19,6 +19,8 @@ import ufsm.csi.pilacoin.model.PilaValidado;
 import ufsm.csi.pilacoin.model.QueryRequest;
 import ufsm.csi.pilacoin.model.QueryResponse;
 import ufsm.csi.pilacoin.model.QueryResponsePila;
+import ufsm.csi.pilacoin.model.Report;
+import ufsm.csi.pilacoin.model.Transfer;
 import ufsm.csi.pilacoin.shared.Singleton;
 
 import javax.crypto.Cipher;
@@ -28,7 +30,9 @@ import static ufsm.csi.pilacoin.config.Config.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RabbitService implements TypeGenericStrategy {
@@ -55,7 +59,7 @@ public class RabbitService implements TypeGenericStrategy {
   }
 
   @SneakyThrows
-  @RabbitListener(queues={"pila-minerado"})
+  @RabbitListener(queues = { "pila-minerado" })
   public void validatePila(@Payload String pilaCoinStr) {
 
     if (pilaCoinStr.isEmpty())
@@ -87,10 +91,27 @@ public class RabbitService implements TypeGenericStrategy {
   }
 
   @SneakyThrows
-  @RabbitListener(queues={"casanova-query"})
+  @RabbitListener(queues = "report")
+  public void getReport(@Payload String report) {
+    List<Report> reports = List.of(this.objectReader.readValue(report, Report[].class));
+    Optional<Report> myReport = findReport(reports, CONST_NAME);
+    System.out.println(myReport);
+  }
+
+  // Utils for the above
+  private Optional<Report> findReport(List<Report> reports, String CONST_NAME) {
+    for (Report report : reports) {
+      if (report.getNomeUsuario() != null && report.getNomeUsuario().equals(CONST_NAME)) {
+        return Optional.of(report);
+      }
+    }
+    return Optional.empty();
+  }
+
+  @SneakyThrows
+  @RabbitListener(queues = { "casanova-query" })
   public void query(@Payload String query) {
     QueryResponse queryResponse = this.objectReader.readValue(query, QueryResponse.class);
-    System.out.println(queryResponse);
     if (queryResponse.getIdQuery() == 1) {
       List<User> users = queryResponse.getUsuariosResult();
       this.userService.save(users);
@@ -105,6 +126,27 @@ public class RabbitService implements TypeGenericStrategy {
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     String queryJson = ow.writeValueAsString(query);
     this.send("query", queryJson);
+  }
+
+  @RabbitListener(queues = "luizf")
+  public void user(@Payload String str) {
+    System.out.println(str);
+  }
+
+  @SneakyThrows
+  public void transfer(User user, PilaCoin pilaCoin) {
+    Transfer transfer = Transfer.builder()
+      .noncePila(pilaCoin.getNonce())
+      .chaveUsuarioOrigem(this.singleton.getPublicKey().getEncoded())
+      .dataTransacao(new Date(System.currentTimeMillis()))
+      .nomeUsuarioDestino(user.getNome())
+      .chaveUsuarioDestino(user.getChavePublica())
+      .nomeUsuarioOrigem(CONST_NAME)
+      .build();
+    String transferJson = this.objectWriter.writeValueAsString(transfer);
+    transfer.setAssinatura(this.singleton.generateSignature(transferJson));
+    transferJson = this.objectWriter.writeValueAsString(transfer);
+    this.send("transferir-pila", transferJson);
   }
 
   /*

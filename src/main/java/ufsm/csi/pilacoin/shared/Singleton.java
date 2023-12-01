@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -15,9 +16,12 @@ import static ufsm.csi.pilacoin.config.Config.*;
 
 import java.io.FileInputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.SmartLifecycle;
@@ -58,6 +62,17 @@ public class Singleton implements SmartLifecycle {
 
   private static class GetSingleton {
     private static final Singleton INSTANCE = new Singleton();
+  }
+
+  // Utilitary
+  
+  @SneakyThrows
+  public byte[] generateSignature(String str) {
+    Cipher encryptCipher = Cipher.getInstance("RSA");
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    encryptCipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey());
+    byte[] hash = md.digest(str.getBytes(StandardCharsets.UTF_8));
+    return encryptCipher.doFinal(hash);
   }
 
   // STATISTICAL METHODS

@@ -2,7 +2,6 @@ package ufsm.csi.pilacoin.common.pilacoin;
 
 import static ufsm.csi.pilacoin.config.Config.CONST_NAME;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,7 +19,6 @@ import ufsm.csi.pilacoin.model.QueryRequest;
 import ufsm.csi.pilacoin.model.QueryResponsePila;
 import ufsm.csi.pilacoin.model.QueryType;
 import ufsm.csi.pilacoin.model.StatusPila;
-import ufsm.csi.pilacoin.services.HashChallengeService;
 import ufsm.csi.pilacoin.services.RabbitService;
 
 
@@ -61,12 +59,12 @@ public class PilaCoinRoute {
     @PostMapping("/query")
     public void query() {
         QueryRequest queryRequest = QueryRequest.builder()
-                .idQuery(2)
-                .tipoQuery(QueryType.PILA)
-                .usuarioMinerador(CONST_NAME)
-                .nomeUsuario(CONST_NAME)
-                .status(StatusPila.VALIDO)
-                .build();
+            .idQuery(2)
+            .tipoQuery(QueryType.PILA)
+            .usuarioMinerador(CONST_NAME)
+            .nomeUsuario(CONST_NAME)
+            .status(StatusPila.VALIDO)
+            .build();
 
         this.rabbitService.sendQuery(queryRequest);
     }
