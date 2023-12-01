@@ -184,3 +184,6 @@ public class RabbitService implements TypeGenericStrategy {
     }
   }
 }
+
+// guarda o horario de todos
+// ao final do mes gera um relatorio de presenca
