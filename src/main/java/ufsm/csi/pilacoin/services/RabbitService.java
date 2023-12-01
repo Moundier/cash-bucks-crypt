@@ -93,6 +93,7 @@ public class RabbitService implements TypeGenericStrategy {
   @SneakyThrows
   @RabbitListener(queues = "report")
   public void getReport(@Payload String report) {
+    System.out.println("REPORT:");
     List<Report> reports = List.of(this.objectReader.readValue(report, Report[].class));
     Optional<Report> myReport = findReport(reports, CONST_NAME);
     System.out.println(myReport);
@@ -128,7 +129,7 @@ public class RabbitService implements TypeGenericStrategy {
     this.send("query", queryJson);
   }
 
-  @RabbitListener(queues = "casanova")
+  @RabbitListener(queues = "casanova-query")
   public void user(@Payload String str) {
     System.out.println(str);
   }
