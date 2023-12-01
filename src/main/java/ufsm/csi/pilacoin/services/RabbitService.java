@@ -128,7 +128,7 @@ public class RabbitService implements TypeGenericStrategy {
     this.send("query", queryJson);
   }
 
-  @RabbitListener(queues = "luizf")
+  @RabbitListener(queues = "casanova")
   public void user(@Payload String str) {
     System.out.println(str);
   }
